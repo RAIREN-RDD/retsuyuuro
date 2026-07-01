@@ -1,0 +1,15 @@
+[submodule "vendor/uWebSockets"]
+	path = vendor/uWebSockets
+	url = https://github.com/uNetworking/uWebSockets.git
+[submodule "vendor/libpq"]
+	path = vendor/libpq
+	url = https://git.postgresql.org/git/postgresql.git
+[submodule "vendor/libpqxx"]
+	path = vendor/libpqxx
+	url = https://github.com/jtv/libpqxx.git
+[submodule "vendor/openssl"]
+	path = vendor/openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "vendor/libsodium"]
+	path = vendor/libsodium
+	url = https://github.com/jedisct1/libsodium.git
