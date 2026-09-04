@@ -2,5 +2,6 @@ build
 env
 
 compile_commands.json
-*.csv
+*.yml
+
 

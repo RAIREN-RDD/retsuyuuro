@@ -40,6 +40,7 @@ INCLUDE := \
 LD_FLAGS := \
 	-L$(USOCKETS_LIB_DIR) \
 	-l$(USOCKETS_LIB) \
+	-lyaml-cpp \
 	-Wl,-rpath,$(USOCKETS_LIB_DIR)
 
 
