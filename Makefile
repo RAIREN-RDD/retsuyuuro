@@ -54,7 +54,7 @@ TARGET := $(BUILD_DIR)/$(PROJECT_NAME)
 # --- SOURCES END --- #
 
 
-.PHONY: all clean
+.PHONY: all clean run
 
 all: $(TARGET)
 
@@ -70,4 +70,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 clean:
 	rm -rf $(BUILD_DIR) compile_commands.json
 
+run: $(TARGET)
+	cd $(BUILD_DIR) && ./$(PROJECT_NAME)
 

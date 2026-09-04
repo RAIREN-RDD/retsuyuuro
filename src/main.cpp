@@ -1,55 +1,34 @@
-#include <print>
+#include <fstream>
 
-#include <retuyuuro/URLNode.hpp>
+#include <retuyuuro/html.hpp>
+#include <retuyuuro/localized_text.hpp>
 
 using namespace retuyuuro;
 
-
-struct WebElement {
-  String tag = "";
-  bool is_void = false;
-
-  Vector<WebElement *> children;
-
-  WebElement(String tag, bool is_void)
-    : tag(std::move(tag)), is_void(is_void) {}
-
-  virtual void open(String &out) {
-    out += "<" + tag;
-
-    if (this->is_void) out += " /";
-    out += ">";
-  }
-
-  virtual void close(String &out) {
-    if (!this->is_void)
-      out += "</" + tag + ">";
-  }
-
-  virtual void render(String &out) {
-    this->open(out);
-
-    for (auto *child : this->children)
-      child->render(out);
-
-    this->close(out);
-  }
-};
-
-struct HtmlPage : WebElement {
-};
-
 int main() {
+  std::ifstream csv("../translation.csv");
 
-  WebElement div("div", false);
-  WebElement img("img", true);
+  Vector<String> languages = {"en", "ja"};
 
-  div.children.push_back(&img);
+  HtmlPage page;
 
-  String out;
-  div.render(out);
+  auto *head = page.add<HtmlHead>();
+  auto *body = page.add<HtmlBody>();
+  auto *text = body->add<HtmlParagraph>()->add<LocalizedText>(
+      csv, "cli_tool_dev_pricing");
 
-  std::println("{}", out);
+  head->add<HtmlMeta>()->set_attribute("charset", "utf-8");
+
+  for (auto &lang : languages) {
+    if (!fs::exists(lang))
+      fs::create_directories(lang);
+
+    text->selected_locale = lang;
+    String out;
+
+    page.render(out);
+    std::ofstream(lang + "/" + "index.html") << out;
+  }
 
   return 0;
 }
