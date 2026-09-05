@@ -11,41 +11,27 @@
 using namespace retuyuuro;
 
 int main() {
-  using Dataset = UnorderedMap<String, UnorderedMap<String, String>>;
-
-  YAML::Node yaml_dataset = YAML::LoadFile("../dataset.yml");
-  Dataset dataset;
-
-  for (const auto &key : yaml_dataset) {
-    for (const auto &lang : key.second) {
-      dataset[key.first.as<String>()][lang.first.as<String>()] =
-          lang.second.as<String>();
-    }
-  }
-
-  std::println("{}", dataset);
+  Dataset dataset = retuyuuro::dataset_load_yml("dataset.yml");
 
   Vector<String> languages = {"en", "ja"};
 
   HtmlPage page;
 
-  auto *head = page.add<HtmlHead>();
-  auto *body = page.add<HtmlBody>();
-  auto *text = body->add<HtmlParagraph>()->add<LocalizedText>(
-      "cli_tool_dev_pricing", &dataset);
+  auto *head = page.head;
+  auto *body = page.body;
+
+  body->add<HtmlParagraph>()->add<LocalizedText>("msg", &dataset);
 
   head->add<HtmlMeta>()->set_attribute("charset", "utf-8");
 
-  for (auto &lang : languages) {
-    if (!fs::exists(lang))
-      fs::create_directories(lang);
+  String out = "";
 
-    text->current_locale = lang;
-    String out;
+  page.render(out, "en");
+  std::println("EN: {}", out);
 
-    page.render(out);
-    std::ofstream(lang + "/" + "index.html") << out;
-  }
+  out = "";
+  page.render(out, "ja");
+  std::println("JA: {}", out);
 
   return 0;
 }

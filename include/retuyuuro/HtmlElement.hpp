@@ -5,49 +5,51 @@
 
 namespace retuyuuro {
 
+using Attributes = OrderedMap<String, String>;
+
 struct HtmlElement {
   String tag;
   bool is_void = false;
 
   Vector<HtmlElement *> children;
 
-  OrderedMap<String, String> attributes;
+  Attributes attributes;
 
   Vector<String> boolean_attributes;
 
-  HtmlElement(String tag, bool is_void = false)
-      : tag(std::move(tag)), is_void(is_void) {}
+  HtmlElement(String tag, bool is_void = false, Attributes attributes = {})
+      : tag(std::move(tag)), is_void(is_void), attributes(attributes) {}
 
-  HtmlElement(const HtmlElement &) = delete;
-  HtmlElement &operator=(const HtmlElement &) = delete;
+  bool owns_children = true;
 
-  HtmlElement(HtmlElement &&other) noexcept
-      : tag(std::move(other.tag)), is_void(other.is_void),
-        children(std::move(other.children)),
-        attributes(std::move(other.attributes)),
-        boolean_attributes(std::move(other.boolean_attributes)) {
-    other.children.clear();
-  }
+  HtmlElement(const HtmlElement &other)
+      : tag(other.tag), is_void(other.is_void), children(other.children),
+        attributes(other.attributes),
+        boolean_attributes(other.boolean_attributes), owns_children(false) {}
 
-  HtmlElement &operator=(HtmlElement &&other) noexcept {
+  HtmlElement &operator=(const HtmlElement &other) {
     if (this == &other)
       return *this;
 
-    for (auto *child : children)
-      delete child;
+    if (owns_children) {
+      for (auto *child : children)
+        delete child;
+    }
 
-    tag = std::move(other.tag);
+    tag = other.tag;
     is_void = other.is_void;
-    children = std::move(other.children);
-    attributes = std::move(other.attributes);
-    boolean_attributes = std::move(other.boolean_attributes);
-
-    other.children.clear();
+    children = other.children;
+    attributes = other.attributes;
+    boolean_attributes = other.boolean_attributes;
+    owns_children = false;
 
     return *this;
   }
 
   virtual ~HtmlElement() {
+    if (!owns_children)
+      return;
+
     for (auto *child : children)
       delete child;
   }
@@ -92,7 +94,6 @@ struct HtmlElement {
     out += '<';
     out += tag;
 
-    // Normal attributes.
     for (const auto &[name, value] : attributes) {
       out += ' ';
       out += name;
@@ -103,7 +104,6 @@ struct HtmlElement {
       out += '"';
     }
 
-    // Boolean attributes
     for (const auto &name : boolean_attributes) {
       out += ' ';
       out += name;
@@ -123,15 +123,16 @@ struct HtmlElement {
     return element;
   }
 
-  virtual void render(String &out) {
+  virtual void render(String &out, String lang = "en") {
     open(out);
 
     for (auto *child : children)
-      child->render(out);
+      child->render(out, lang);
 
     close(out);
   }
 };
 
 } // namespace retuyuuro
+
 #endif

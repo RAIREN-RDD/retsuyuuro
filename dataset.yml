@@ -1,0 +1,8 @@
+msg:
+  en: "This is an English string. And this got injected: {currency}"
+  ja: "此れは日本語の句です。そして此れを入らせり：{currency}"
+
+currency:
+  en: "EUR"
+  ja: "円"
+

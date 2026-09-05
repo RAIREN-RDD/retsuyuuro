@@ -2,6 +2,5 @@ build
 env
 
 compile_commands.json
-*.yml
 
 
